@@ -1,0 +1,142 @@
+@font-face { font-family: Droid; src: url('../fonts/DroidSansMonoDotted.ttf'); }
+@font-face { font-family: AlteHaasBold; src: url('../fonts/AlteHaasGroteskBold.ttf'); }
+@font-face { font-family: BebasNeue; src: url('../fonts/BebasNeue.otf'); }
+@font-face { font-family: AlteHaasRegular; src: url('../fonts/AlteHaasGroteskRegular.ttf'); }
+@font-face { font-family: Renzo; src: url('../fonts/renzo.otf'); }
+@font-face { font-family: Thryromanes; src: url('../fonts/thryn___.ttf'); }
+body {
+    font-family: Thryromanes;
+
+    font-size: 10pt;
+    color: #113;
+    background-color: #fafafa;
+}
+
+#cont {
+    margin: 5px auto;
+    width: 500px;
+}
+
+h2 {
+    font-size: 20px;
+    color: #028;
+}
+
+p {
+    margin: 13px 0;
+}
+
+.blog-title {
+    font-family: Renzo;
+    font-size: 32px;
+    margin: 0 auto;
+    padding: 75px 0 50px 0;
+    text-align: center;
+}
+
+.home-posts {
+    font-family: Renzo
+    margin-top: 25px;
+}
+
+a {
+    text-decoration: none;
+    color: #000000;
+}
+
+.post-title {
+    font-family: Renzo;
+    font-size: 36px;
+    text-align: center;
+    margin-top: 60px;
+}
+
+.post-author {
+    margin-top: 26px;
+    text-align: center;
+    font-size: 12px;
+}
+
+.post-date {
+    font-size: 12px;
+    font-family: Renzo;
+    color: #707070;
+    text-align: center;
+    margin-top: px;
+    padding: 6px 50px;
+    margin-bottom: 28px;
+}
+
+.credit {
+    text-align: center;
+    font-size: 14px;
+    font-color: #222;
+}
+
+.bottombar {
+    margin-top: 24px;
+}
+
+.date {
+    font-family: Renzo;
+    color: #707070;
+    text-align: center;
+    font-size: 11px;
+    margin-bottom: 5px;
+}
+
+.title-home {
+    font-size: 22px;
+    text-align: center;
+    font-family: Renzo;
+    margin-bottom: 27px;
+}
+
+.preview {
+    margin-bottom: 75px;
+}
+
+p {
+    margin: 18px 0;
+    font-size: 1.0em;
+    line-height: 1.25em;
+    text-align: justify;
+}
+
+pre {
+    padding: 8px;
+    margin: 8px;
+}
+
+code {
+    font-family: Droid, sans-serif;
+    font-size: 10px;
+    line-height: 1.2em;
+}
+
+.top-link {
+    width: 150px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 100px;
+    text-align: center;
+}
+
+.top-link a {
+    color: #707070;
+}
+
+.month-preview {
+    margin-left: 50px;
+}
+
+.month {
+    font-size: 14px;
+    color: #707070;
+    margin-bottom: 10px;
+}
+
+.title {
+    font-size: 14px;
+    margin-bottom: 5px;
+}
