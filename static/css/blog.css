@@ -1,15 +1,21 @@
-@font-face { font-family: Droid; src: url('../fonts/DroidSansMonoDotted.ttf'); }
-@font-face { font-family: AlteHaasBold; src: url('../fonts/AlteHaasGroteskBold.ttf'); }
-@font-face { font-family: BebasNeue; src: url('../fonts/BebasNeue.otf'); }
-@font-face { font-family: AlteHaasRegular; src: url('../fonts/AlteHaasGroteskRegular.ttf'); }
 @font-face { font-family: Renzo; src: url('../fonts/renzo.otf'); }
-@font-face { font-family: Thryromanes; src: url('../fonts/thryn___.ttf'); }
-body {
-    font-family: Thryromanes;
+@font-face { font-family: Lane; src: url('../fonts/LANENAR_.ttf'); }
+@font-face { font-family: Print; src: url('../fonts/PRINC___.TTF'); }
+@font-face { font-family: Linux; src: url('../fonts/LinBiolinum_R.ttf'); }
+@font-face { font-family: Sheep; src: url('../fonts/sheep_sans.ttf'); }
+@font-face { font-family: Droid; src: url('../fonts/DroidSansMonoDotted.ttf'); }
+@font-face { font-family: Nonserif; src: url('../fonts/Nonserif.ttf'); }
+@font-face { font-family: Helvetica; src: url('../fonts/HelveticaBQ-Light.otf'); }
+@font-face { font-family: HelveticaLight; src: url('../fonts/HelveticaBQ-UltraLight.otf'); }
+@font-face { font-family: Alte; src: url('../fonts/AlteHaasGroteskRegular.ttf'); }
+@font-face { font-family: Bebas; src: url('../fonts/BebasNeue.ttf'); }
 
-    font-size: 10pt;
+body {
+    font-family: Helvetica;
+    font-size: 10.25pt;
     color: #113;
     background-color: #fafafa;
+
 }
 
 #cont {
@@ -22,12 +28,8 @@ h2 {
     color: #028;
 }
 
-p {
-    margin: 13px 0;
-}
-
 .blog-title {
-    font-family: Renzo;
+    font-family: HelveticaLight;
     font-size: 32px;
     margin: 0 auto;
     padding: 75px 0 50px 0;
@@ -35,8 +37,12 @@ p {
 }
 
 .home-posts {
-    font-family: Renzo
+    font-family: Helvetica;
     margin-top: 25px;
+}
+
+.post-wrapper a {
+    border-bottom: 0.08em solid;
 }
 
 a {
@@ -45,7 +51,7 @@ a {
 }
 
 .post-title {
-    font-family: Renzo;
+    font-family: Helvetica;
     font-size: 36px;
     text-align: center;
     margin-top: 60px;
@@ -59,7 +65,7 @@ a {
 
 .post-date {
     font-size: 12px;
-    font-family: Renzo;
+    font-family: Helvetica;
     color: #707070;
     text-align: center;
     margin-top: px;
@@ -78,7 +84,7 @@ a {
 }
 
 .date {
-    font-family: Renzo;
+    font-family: Helvetica;
     color: #707070;
     text-align: center;
     font-size: 11px;
@@ -88,7 +94,7 @@ a {
 .title-home {
     font-size: 22px;
     text-align: center;
-    font-family: Renzo;
+    font-family: Helvetica;
     margin-bottom: 27px;
 }
 
@@ -99,18 +105,18 @@ a {
 p {
     margin: 18px 0;
     font-size: 1.0em;
-    line-height: 1.25em;
+    line-height: 20px;
     text-align: justify;
 }
 
 pre {
-    padding: 8px;
-    margin: 8px;
+    padding: 10px;
+    margin: 25px;
 }
 
 code {
     font-family: Droid, sans-serif;
-    font-size: 10px;
+    font-size: 11px;
     line-height: 1.2em;
 }
 
@@ -128,11 +134,13 @@ code {
 
 .month-preview {
     margin-left: 50px;
+    margin-bottom: 30px;
 }
 
 .month {
     font-size: 14px;
     color: #707070;
+    margin-top: 10px;
     margin-bottom: 10px;
 }
 
