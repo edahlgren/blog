@@ -1,0 +1,141 @@
+<html>
+<head>
+    <link href="./static/css/blog.css" rel='stylesheet' type='text/css'>
+    <link href="./static/css/simple.min.css" rel='stylesheet' type='text/css'>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
+    <script src="./static/js/sh/sh_main.min.js"></script>
+    <script src="./static/js/lazyload-min.js"></script>
+    <script src="./static/js/hobo.js"></script>
+    <title>Futex 0x3be6fec</title>
+</head>
+<body>
+<div id="cont">
+    <div class="blog-title"><a href="./index.html">Futex 0x3be6fec</a></div>
+    <div class="top-link"><a href="./about.html">&#167; About</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="./archive.html">&#167; Archive</a></div>
+
+    <div class="post-title">Invisible networks for the sneaky</div>
+    <div class="post-date">Friday, July 19 &#39;13</div>
+
+    <div class="post-wrapper">
+      <p>Eyebrows raise. Invisible networks you say &hellip;  If you type</p>
+
+<pre><code> ifconfig
+</code></pre>
+
+<p>You&rsquo;ll see all of the network devices currently up: probably eth0 (ethernet) or wlan (wireless), and a lo (loopback) device at least (ifconfig -a for all devices up or down).  Little beknownst to you, these devices exist in a single <a href="http://lwn.net/Articles/219794/">network namespace</a>: a place for them all to romp and play happily together.  And by romp and play I mean they can be <a href="http://tldp.org/HOWTO/BRIDGE-STP-HOWTO/what-is-a-bridge.html">bridged together</a>, they can <a href="http://www.tldp.org/HOWTO/IP-Masquerade-HOWTO/ipmasq-background2.1.html">masquerade</a> as one another (I know, it&rsquo;s awesome), or deliberately forward each other packets.</p>
+
+<p>What if I told you that you could steal one of these network devices and put it in a private, invisible network?  You might think, &ldquo;Hmm, that means I can probably run X program on P port in both networks and they won&rsquo;t conflict&rdquo;.  Correct.  Then you might say, &ldquo;Hey!  I could also hide everything I&rsquo;m doing in that invisible network from the rest of my machine&rdquo;.  Yep.  But after a few minutes you&rsquo;d probably say: &ldquo;What! How do I communicate with the outside world?&rdquo;  I&rsquo;d be worried too.</p>
+
+<p>The answer: Virtual ethernet!</p>
+
+<p>&ldquo;Wait, what?&rdquo;  Virtual ethernet devices are created in pairs, where one &ldquo;veth&rdquo; device can talk directly to its peer, no matter what network you move either of them to.  So if veth0 is in network A and veth1 is in network B, but network B is totally invisible to A, these networks can tunnel messages to one another over their veth secret chat line.  A stranger doesn&rsquo;t know anything about your private network topology other than a veth device exists.  Pretty cool.</p>
+
+<p>&ldquo;Ok fine, how do I make an invisible network?&rdquo;  By making another network namespace, by making a pair of veth devices that can talk to each other, and by placing one in the new network namespace and the other in your current namespace.  Command line setup involves:</p>
+
+<ul>
+<li><a href="http://www.dsm.fordham.edu/cgi-bin/man-cgi.pl?topic=ip-netns&amp;ampsect=8">ip netns</a>, for creating, removing, and running commands in network namespaces</li>
+<li><a href="http://www.dsm.fordham.edu/cgi-bin/man-cgi.pl?topic=ip-link&amp;sect=&amp;querytype=Man+page&amp;srch=&amp;case=sensitive">ip link</a>, for generally managing network devices</li>
+<li><a href="http://www.dsm.fordham.edu/cgi-bin/man-cgi.pl?topic=ip&amp;sect=addr&amp;querytype=Man+page&amp;srch=&amp;case=sensitive">ip addr</a>, for assigning inet and subnet addresses to network devices</li>
+<li><a href="http://www.dsm.fordham.edu/cgi-bin/man-cgi.pl?topic=ifconfig&amp;sect=addr&amp;querytype=Man+page&amp;srch=&amp;case=sensitive">ifconfig</a>, for checking the network configuration</li>
+<li><a href="http://www.dsm.fordham.edu/cgi-bin/man-cgi.pl?topic=nc&amp;sect=&amp;querytype=Man+page&amp;srch=&amp;case=sensitive">netcat</a>, for testing</li>
+</ul>
+
+
+<p>Warning: some of these commands will fail with mysterious error messages if you&rsquo;re not root.  <code>sudo su</code> to save yourself the confusion.</p>
+
+<p>In Terminal 1:</p>
+
+<pre><code>#!sh
+# name a new network namespace
+# this is not the network namespace you're in right now
+# but we can enter it by name now at any time
+ip netns add ns1
+
+# check that the new network namespace is present
+ip netns list
+
+# create a pair of veth devices
+ip link add host type veth peer name guest
+
+# make sure you can see both host and guest (down)
+ifconfig -a
+
+# bring the host veth device up, it will exist in the current
+# network namespace
+ip link set host up
+
+# give up the guest veth device to the new network
+ip link set guest netns ns1
+
+# assign an ip and subnet to the host veth
+ip addr add 192.168.0.101/24 dev host
+
+# check that the address shows up
+ifconfig
+</code></pre>
+
+<p>In Terminal 2:</p>
+
+<pre><code>#!sh
+# execute a bash shell in your newly named network
+ip netns exec ns1 bash
+
+# check that you can see the guest veth device (down)
+ifconfig -a
+
+# bring the guest veth device up
+# assign an ip and subnet to it
+ip link set GUEST up
+ip addr add 192.168.0.102/24
+
+# check that the guest veth device is up with an address
+ifconfig
+</code></pre>
+
+<p>Drumroooool &hellip;. In Terminal 2:</p>
+
+<pre><code>#!sh
+# check that you can ping the host veth device
+# in the guest's network
+ping 192.168.0.101
+</code></pre>
+
+<p>In Terminal 1:</p>
+
+<pre><code>#!sh
+# set up a netcat listening server
+nc -l 192.168.0.101 5555
+</code></pre>
+
+<p>In Terminal 2:</p>
+
+<pre><code>#!sh
+# set up a netcat client
+nc 192.168.0.101 5555
+
+# say hi to the host veth device!
+hi
+</code></pre>
+
+<p>You should see hi in Terminal 1. Mission accomplished.</p>
+
+<p>&ldquo;Ugh, how do I tear this down?&rdquo; In Terminal 1:</p>
+
+<pre><code>ip link delete host
+</code></pre>
+
+<p>If you check Terminal 2, you&rsquo;ll see that guest cannot live without it&rsquo;s buddy, and has already committed suicide.</p>
+
+<p>To come:</p>
+
+<ul>
+<li>Attaching a veth device to the internet at large</li>
+<li>Doing this all in a compiled language, for better portability</li>
+</ul>
+
+    </div>
+
+    <div class="post-author">- E. Dahlgren</div>
+</div>
+</body>
+</html>
