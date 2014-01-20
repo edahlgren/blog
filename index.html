@@ -1,21 +1,164 @@
 <html>
 <head>
-    <link href="./static/css/blog.css" rel='stylesheet' type='text/css'>
-    <link href="./static/css/simple.min.css" rel='stylesheet' type='text/css'>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
-    <script src="./static/js/sh/sh_main.min.js"></script>
-    <script src="./static/js/lazyload-min.js"></script>
-    <script src="./static/js/hobo.js"></script>
+    <link href='/static/css/blog.css' rel='stylesheet' type='text/css'>
+    <link href='/static/css/simple.min.css' rel='stylesheet' type='text/css'>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
+    <script src="/static/js/sh/sh_main.min.js"></script>
+    <script src="/static/js/lazyload-min.js"></script>
+    <script src="/static/js/hobo.js"></script>
     <title>Futex 0x3be6fec</title>
 </head>
 <body>
 <div id="cont">
-    <div class="blog-title"><a href="./index.html">Futex 0x3be6fec</a></div>
-    <div class="top-link"><a href="./about.html">&#167; About</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="./archive.html">&#167; Archive</a></div>
+    <div class="blog-title"><a href="/">Futex 0x3be6fec</a></div>
+    <div class="top-link"><a href="/about">About</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="/archive">Archive</a></div>
     <div class="home-posts">
         <div class="preview">
-        <div class="date">on Friday, July 19 &#39;13</div>
-        <div class="title-home"><a href="./2013-07-19-Invisible-networks-for-the-sneaky.html">Invisible networks for the sneaky</a></div>
+        <div class="post-date">on Sunday, January 19 &#39;14</div>
+        <div class="post-title"><a href="./2014/01/19/I-Probably-Can't-decide-which-linux-IPC-to-use.html">I Probably Can&#39;t decide which linux IPC to use</a></div>
+
+	<div class="post-wrapper">
+	  <p>You want to do interprocess communication in linux?  Wait, you mean <a href="http://www.tldp.org/LDP/lpg/node15.html">named pipes</a> &hellip; no you mean <a href="http://www.users.pjwstk.edu.pl/~jms/qnx/help/watcom/clibref/mq_overview.html">POSIX message queues</a> &hellip; oh wait no, maybe just plain <a href="http://www.cs.cf.ac.uk/Dave/C/node24.html">signals</a> &hellip; but probably not so <a href="http://beej.us/guide/bgipc/output/html/multipage/shm.html">shared memory</a> &hellip; <a href="http://man7.org/linux/man-pages/man7/unix.7.html">unix domain sockets</a> &hellip; <a href="http://en.wikipedia.org/wiki/Network_socket">network sockets</a> &hellip; <a href="http://dbus.freedesktop.org/doc/dbus-tutorial.html">d-bus</a>? You have no idea?  Me neither.</p>
+
+<p>We could ramble on about your options, but it&rsquo;s more fun to experiment, so pull out your command line:</p>
+
+<h2>D-Bus what?</h2>
+
+<p>Try querying the d-bus system:<br/>
+(If that doesn&rsquo;t work, and you&rsquo;re on ubuntu, try installing <code>qt4-dev-tools</code>)</p>
+
+<pre><code>$ qdbus
+:1.0
+ org.gnome.Terminal.Display_0
+:1.1
+:1.143
+:1.15
+ org.PulseAudio1
+ org.pulseaudio.Server
+:1.16
+
+...    
+org.freedesktop.DBus
+</code></pre>
+
+<p>You&rsquo;ll see a list of numeric addresses or ids intermixed with what look like reversed domain names.</p>
+
+<p>The addresses/ids are a bit meaningless right now, but we can probably guess what <code>org.gnome.Terminal.Display_0</code> is: the <a href="http://en.wikipedia.org/wiki/GNOME_Terminal">GNOME terminal application</a>. But what is it doing in that list?</p>
+
+<pre><code>$ qdbus org.gnome.Terminal.Display_0
+/
+/org
+/org/gnome
+/org/gnome/Terminal
+/org/gnome/Terminal/Factory
+/com
+/com/canonical
+/com/canonical/menu
+/com/canonical/menu/ACAF07
+/com/canonical/menu/ABFFD2
+/com/canonical/menu/ABA8B5
+/com/canonical/menu/A03742
+/com/canonical/menu/AC8622
+/com/canonical/menu/AC1E8B
+/com/canonical/menu/AE8B1A
+/com/canonical/menu/AC0CA6
+</code></pre>
+
+<p>Whoa that&rsquo;s a lot of shit.  It looks like paths.  And we still don&rsquo;t totally know why <code>qdbus</code> cares about the GNOME terminal.  Ok try (or use whatever path you like):</p>
+
+<pre><code>$ qdbus org.gnome.Terminal.Display_0 /com/canonical/menu/ACAF07
+method QDBusVariant org.freedesktop.DBus.Properties.Get(QString interface_name, \
+    QString property_name)
+method QVariantMap org.freedesktop.DBus.Properties.GetAll(QString interface_name)
+signal void org.freedesktop.DBus.Properties.PropertiesChanged(QString interface_name, \
+    QVariantMap changed_properties, QStringList invalidated_properties)
+method void org.freedesktop.DBus.Properties.Set(QString interface_name, \
+    QString property_name, QDBusVariant value)
+method QString org.freedesktop.DBus.Introspectable.Introspect()
+method QString org.freedesktop.DBus.Peer.GetMachineId()
+method void org.freedesktop.DBus.Peer.Ping()
+property read QStringList com.canonical.dbusmenu.IconThemePath
+property read QString com.canonical.dbusmenu.Status
+property read QString com.canonical.dbusmenu.TextDirection
+property read uint com.canonical.dbusmenu.Version
+...
+</code></pre>
+
+<p>Much more informative!  This looks like an interface through which you can communicate with the GNOME terminal.  Cool!  Let&rsquo;s try getting one of the terminal properties (or try this with a property you find in your list):</p>
+
+<pre><code>$ qdbus org.gnome.Terminal.Display_0 /com/canonical/menu/ACAF07 \
+        com.canonical.dbusmenu.TextDirection
+ltr
+</code></pre>
+
+<p>Boom!  If you tried this and your terminal isn&rsquo;t displaying text from left to right, give up now and go drink a beer.  Otherwise, let&rsquo;s call a method on GNOME terminal in the same way we asked for one of it&rsquo;s properties.  Let&rsquo;s see what <code>org.freedesktop.DBus.Properties.GetAll</code> gives us (hopefully a list of all of the properties).  This time we&rsquo;ll use <a href="http://en.wikipedia.org/wiki/GNOME_Terminal"><code>dbus-send</code></a>:</p>
+
+<pre><code>$ dbus-send --print-reply --dest=org.gnome.Terminal.Display_0 \
+            /com/canonical/menu/ACAF07 org.freedesktop.DBus.Properties.GetAll \
+            string:com.canonical.dbusmenu
+method return sender=:1.0 -&gt; dest=:1.137 reply_serial=2
+   array [
+      dict entry(
+         string "Version"
+         variant uint32 3
+      )
+      dict entry(
+         string "TextDirection"
+         variant string "ltr"
+      )
+      dict entry(
+         string "Status"
+         variant string "normal"
+      )
+      dict entry(
+         string "IconThemePath"
+         variant array [
+            ]
+      )
+   ]
+</code></pre>
+
+<blockquote><p>Weird command, right? <code>dbus-send</code> gives us more control over sending messages than <code>qbus</code>, because of the <code>--dest</code> flag, which specifies which service (GNOME terminal) to find the implementation of a generic method like <code>org.freedesktop.DBus.Properties.GetAll</code> (which nearly all services implement).  After we supply the path under the service to use, we provide a string argument.</p></blockquote>
+
+<p>Notice that TextDirection is there with the value that we just queried.  So we can send rpc commands to any process that tells us what types of rpc calls it supports, nice!</p>
+
+<p>But what are those signals about?  Just as we can execute a method on GNOME terminal through the d-bus system, or query a terminal property, we can listen for signals that GNOME terminal is broadcasting.</p>
+
+<pre><code>$ dbus-monitor --profile "sender='org.gnome.Terminal.Display_0'"
+</code></pre>
+
+<p>Now try selecting one of the drop downs from GNOME terminal (File, Edit, View &hellip;), and notice that you get one or more signals that look like:</p>
+
+<pre><code>signal sender=:1.0 -&gt; dest=(null destination) serial=501 \
+       path=/com/canonical/menu/BA18C1; interface=com.canonical.dbusmenu; \
+       member=LayoutUpdated
+</code></pre>
+
+<p>&hellip; showing that the GNOME terminal UI has updated.</p>
+
+<p>So what does the d-bus system actually do?  One way to look at it: D-bus manages RPC routing, where the destinations of the RPCs are always on the same machine.  D-bus also simultaneously broadcasts messages to interested parties.  D-bus is acting both as a router and as a pub/sub hub.  Pretty cool.</p>
+
+<p><strong>When to use d-bus</strong></p>
+
+<p>You have a bunch of services/applications that need to play well with each other, and may not be written by the same party.  This is useful for keeping services/applications completely independent (they don&rsquo;t even share a common config file), which is arguably more fault tolerant.  It makes sense for a community of linux desktop applications, or a community of android applications.  Or a community of systems programmers who don&rsquo;t trust each other :)</p>
+
+<p><strong>When to not use d-bus</strong></p>
+
+<p>Unless you&rsquo;re communicating with systems services that implement d-bus interfaces, a d-bus bus has a lifetime tied to a user session.  That means that non systems d-bus services can only communicate when a user is logged in, and cannot communicate cross-users.  If you give your d-bus services special system&rsquo;s level permissions, then hell, you can do whatever you want.</p>
+
+<p>Is d-bus memory efficient?  D-bus is as memory efficient as the binary protocol that it uses.  If you&rsquo;re sending large serialized messages through d-bus, that&rsquo;s your fault.  Choose another IPC method where memory can be shared between processes.</p>
+
+<p>I (still) Probably Can&rsquo;t decide which linux IPC to use, so more to come.</p>
+
+<blockquote><p>[1] <a href="http://dbus.freedesktop.org/doc/dbus-specification.html">D-Bus specification</a><br/>
+[2] <a href="http://dbus.freedesktop.org/doc/api/html/group__DBusInternals.html">D-Bus internal implementation</a><br/>
+[3] <a href="http://kroah.com/log/blog/2014/01/15/kdbus-details/">kdbus being considered in android</a></p></blockquote>
+	</div>
+
+    </div>
+        <div class="preview">
+        <div class="post-date">on Friday, July 19 &#39;13</div>
+        <div class="post-title"><a href="./2013/07/19/Invisible-networks-for-the-sneaky.html">Invisible networks for the sneaky</a></div>
 
 	<div class="post-wrapper">
 	  <p>Eyebrows raise. Invisible networks you say &hellip;  If you type</p>
@@ -138,8 +281,8 @@ hi
 
     </div>
         <div class="preview">
-        <div class="date">on Friday, July 12 &#39;13</div>
-        <div class="title-home"><a href="./2013-07-12-Hash-collisions-for-the-skeptical.html">Hash collisions for the skeptical</a></div>
+        <div class="post-date">on Friday, July 12 &#39;13</div>
+        <div class="post-title"><a href="./2013/07/12/Hash-collisions-for-the-skeptical.html">Hash collisions for the skeptical</a></div>
 
 	<div class="post-wrapper">
 	  <p>&ldquo;<strong>Gah</strong>&rdquo; you say.  &ldquo;I should probably be using something other than the dumbest way ever to resolve hash collisions in my super fast blah blah blah.&rdquo;  Or should you?  A good hash collision resolution strategy:</p>
@@ -288,8 +431,8 @@ Use chaining with a good hash function, but if you must, use robin hood hashing.
 
     </div>
         <div class="preview">
-        <div class="date">on Friday, July  5 &#39;13</div>
-        <div class="title-home"><a href="./2013-07-05-Ring-balancing-for-the-weary.html">Ring balancing for the weary</a></div>
+        <div class="post-date">on Friday, July  5 &#39;13</div>
+        <div class="post-title"><a href="./2013/07/05/Ring-balancing-for-the-weary.html">Ring balancing for the weary</a></div>
 
 	<div class="post-wrapper">
 	  <p>&ldquo;<strong>Ugh</strong>, Statistics!&rdquo; you say, &ldquo;I became a programmer in order to avoid this shit.&rdquo;  Me too, my friend, me too.  But there comes a time when you want to balance load between servers in a <a href="http://www.tom-e-white.com/2007/11/consistent-hashing.html">hash ring</a> and you end up wondering &ldquo;How many replicas of my servers do I need to be confident that my uniformly distributing hash function disperses those replicas evenly enough?&rdquo;  What you&rsquo;d like is simply a function that takes the size of your key space, the number of servers you want to store in the ring, and returns the number of replications per server to maintain a nearly uniform distribution.  Then you could move on with your life.</p>
@@ -618,8 +761,8 @@ Use chaining with a good hash function, but if you must, use robin hood hashing.
 
     </div>
         <div class="preview">
-        <div class="date">on Wednesday, July  3 &#39;13</div>
-        <div class="title-home"><a href="./2013-07-03-Hash-functions-for-the-weary.html">Hash functions for the weary</a></div>
+        <div class="post-date">on Wednesday, July  3 &#39;13</div>
+        <div class="post-title"><a href="./2013/07/03/Hash-functions-for-the-weary.html">Hash functions for the weary</a></div>
 
 	<div class="post-wrapper">
 	  <p>&ldquo;<strong>Damnit</strong>&rdquo;, you say.  &ldquo;Building this hash ring or routing this data means that I need to find the fastest hash function that isn&rsquo;t horrible.&rdquo;  The reason you&rsquo;ve said &ldquo;Damnit!&rdquo; is because what makes a hash function horrible is knowledge you&rsquo;ve popped off your memory stack long ago.  Simply put, a non-horrible hash function:</p>
@@ -675,8 +818,8 @@ Use chaining with a good hash function, but if you must, use robin hood hashing.
 
     </div>
         <div class="preview">
-        <div class="date">on Sunday, June 23 &#39;13</div>
-        <div class="title-home"><a href="./2013-06-23-Hobogen.html">Hobogen</a></div>
+        <div class="post-date">on Sunday, June 23 &#39;13</div>
+        <div class="post-title"><a href="./2013/06/23/Hobogen.html">Hobogen</a></div>
 
 	<div class="post-wrapper">
 	  <p><a href="http://github.com/edahlgren/hobo">Hobogen</a> is an html compiler written in haskell.  It is an extension of the minimalist blogging engine <a href="http://github.com/jamwt/hobo">hobo</a>.</p>

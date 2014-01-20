@@ -11,16 +11,17 @@
 @font-face { font-family: Bebas; src: url('../fonts/BebasNeue.ttf'); }
 
 body {
-    font-family: Helvetica;
-    font-size: 10.25pt;
+    font-family: Lane;
+    font-size: 12pt;
     color: #113;
     background-color: #fafafa;
     float: none;
+    margin-bottom: 100px;
 }
 
 #cont {
     margin: 5px auto;
-    width: 500px;
+    width: 600px;
 }
 
 h2 {
@@ -37,12 +38,8 @@ h2 {
 }
 
 .home-posts {
-    font-family: Helvetica;
+    font-family: Lane;
     margin-top: 25px;
-}
-
-.post-wrapper a {
-    color: #585858;
 }
 
 a {
@@ -51,10 +48,10 @@ a {
 }
 
 .post-title {
-    font-family: Helvetica;
-    font-size: 36px;
+    font-size: 22px;
     text-align: center;
-    margin-top: 60px;
+    font-family: Lane;
+    margin-bottom: 27px;
 }
 
 .post-author {
@@ -81,21 +78,6 @@ a {
 
 .bottombar {
     margin-top: 24px;
-}
-
-.date {
-    font-family: Helvetica;
-    color: #707070;
-    text-align: center;
-    font-size: 11px;
-    margin-bottom: 5px;
-}
-
-.title-home {
-    font-size: 22px;
-    text-align: center;
-    font-family: Helvetica;
-    margin-bottom: 27px;
 }
 
 .preview {
